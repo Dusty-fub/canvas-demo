@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>画板</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body oncontextmenu="doNothing()">
+    <canvas id="canvas" width="100" height="100"></canvas>
+    <script>
+        let canvas = document.getElementById("canvas");
+        canvas.width = document.documentElement.clientWidth
+        canvas.height = document.documentElement.clientHeight
+        let ctx = canvas.getContext("2d");
+
+        let painting = false
+        ctx.lineWidth = 15;
+
+        ctx.lineCap = "round";
+
+
+        //屏蔽右键菜单
+        function doNothing() {
+            window.event.returnValue = false;
+            return false;
+        }
+
+
+        let last;
+        let leftclick;
+        let rightclick;
+
+        var isTouchDevice = 'ontouchstart' in document.documentElement;
+        if (isTouchDevice) {
+
+            canvas.ontouchstart = (e) => {
+
+                let x = e.touches[0].clientX;
+                let y = e.touches[0].clientY;
+                last = [x, y]
+
+            }
+            canvas.ontouchmove = (e) => {
+                let x = e.touches[0].clientX;
+                let y = e.touches[0].clientY;
+                drawLine(last[0], last[1], x, y)
+                last = [x, y]
+            }
+
+        } else {
+            canvas.onmousedown = (e) => {
+                if (e.button == 0) { //监听鼠标左键
+                    painting = true
+                    last = [e.clientX, e.clientY]
+                    leftclick = true;
+                } else if (e.button == 2) {
+                    painting = true;
+                    last = [e.clientX, e.clientY]
+                    rightclick = true;
+                }
+            }
+
+            canvas.onmousemove = (e) => {
+                if (leftclick === true) {
+
+                    if (painting === true) {
+                        drawLine(last[0], last[1], e.clientX, e.clientY)
+                        last = [e.clientX, e.clientY]
+                    }
+
+                } else if (rightclick === true) {
+
+
+                    if (painting === true) {
+                        rmLine(last[0], last[1], e.clientX, e.clientY)
+                        last = [e.clientX, e.clientY]
+                    }
+
+                }
+            }
+
+            canvas.onmouseup = () => {
+                painting = false
+                leftclick = false
+                rightclick = false
+            }
+        }
+
+        function drawLine(x1, y1, x2, y2) {
+            ctx.fillStyle = "black";
+            ctx.strokeStyle = 'black';
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+        }
+
+
+        function rmLine(x1, y1, x2, y2) {
+            ctx.fillStyle = "white";
+            ctx.strokeStyle = 'white';
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+        }
+
+
+    </script>
+</body>
+
+</html>
