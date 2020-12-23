@@ -17,6 +17,9 @@ let rightclick;
 
 let savePicEl = document.getElementsByClassName("savePic")[0];
 let eraserEl = document.getElementsByClassName("eraser")[0];
+let fontSizeBtnEl = document.getElementsByClassName("fontSizeBtn")[0];
+let textEl = document.getElementsByClassName("textBtn")[0];
+let undoEl = document.getElementsByClassName("undo")[0];
 let clearEl = document.getElementsByClassName("clear")[0];
 let rangeEl = document.getElementsByClassName("range")[0];
 let leftColorEl = document.getElementsByClassName("leftColor")[0];
@@ -26,6 +29,28 @@ let colorFirstRowEl = document.getElementsByClassName("colorFirstRow")[0];
 let colorSecondRowEl = document.getElementsByClassName("colorSecondRow")[0];
 
 let mouseColorEl = leftColorEl;
+
+let isText = false;
+let inputFontSize = 18;
+
+fontSizeBtnEl.onchange = function () {
+  let currentInputEl = document.getElementsByClassName("insertInput")[0];
+  if (currentInputEl) {
+    currentInputEl.style.fontSize = this.value + "px";
+    currentInputEl.focus();
+  }
+  inputFontSize = this.value;
+};
+
+textEl.addEventListener(
+  "click",
+  () => {
+    canvas.style.cursor = "text";
+
+    isText = true;
+  },
+  false
+);
 
 savePicEl.addEventListener(
   "click",
@@ -41,6 +66,23 @@ savePicEl.addEventListener(
   false
 );
 
+let historyLines = [];
+
+function recordLines(line) {
+  historyLines.unshift(line);
+}
+
+undoEl.onclick = () => {
+  historyLines.shift();
+  if (historyLines.length < 1) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "#fff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  } else {
+    ctx.putImageData(historyLines[0], 0, 0);
+  }
+};
+
 clearEl.addEventListener(
   "click",
   () => {
@@ -52,9 +94,7 @@ clearEl.addEventListener(
 );
 
 rangeEl.onchange = function () {
-  console.log(this.value);
   ctx.lineWidth = this.value;
-  console.log("ctx.lineWidth", ctx.lineWidth);
 };
 
 let chooseMouseColor = (clickEl, anotherEl) => {
@@ -115,12 +155,63 @@ if (isTouchDevice) {
   canvas.onmousedown = (e) => {
     if (e.button === 0) {
       //监听鼠标左键
-      painting = true;
 
-      lastTrack["x"] = e.clientX;
-      lastTrack["y"] = e.offsetY;
-      leftclick = true;
-      drawCircle(e.clientX, e.offsetY, ctx.lineWidth / 2);
+      if (isText) {
+        let emptyEls = [...document.getElementsByClassName("insertInput")];
+        emptyEls.length !== 0 &&
+          emptyEls.forEach((item) => {
+            item.parentElement.removeChild(item);
+          });
+        let x = e.pageX;
+        let y = e.offsetY;
+        let inputEl = document.createElement("textarea");
+        inputEl.className = "insertInput";
+        inputEl.style.position = "fixed";
+        console.dir(inputEl);
+        inputEl.style.top = e.clientY - inputEl.offsetHeight + "px";
+        setTimeout(() => {
+          console.dir(inputEl);
+        }, 10000);
+        inputEl.style.left = e.clientX + "px";
+        inputEl.style.resize = "both";
+        inputEl.style.fontSize = inputFontSize + "px";
+        inputEl.style.backgroundColor = "transparent";
+        inputEl.style.border = ".5px dashed #0078d7";
+        inputEl.style.outline = "none";
+        inputEl.style.color = color;
+        document.body.appendChild(inputEl);
+        setTimeout(() => {
+          inputEl.focus();
+        });
+
+        inputEl.onchange = (e) => {
+          let writeContent = e.target.value;
+          ctx.fillStyle = color;
+          ctx.lineWidth = 5;
+          ctx.save();
+          ctx.beginPath();
+          ctx.font = inputFontSize + "px orbitron";
+          ctx.fillText(writeContent, x + 1, y + 16); //inputFontSize
+
+          /**
+           *  f       +x       +y
+           *  64      1       -12
+           *  53      1       -10
+           *  42      1       -4
+           *  12      1       -3
+           */
+          ctx.restore();
+          ctx.closePath();
+          inputEl.parentElement.removeChild(inputEl);
+        };
+      } else {
+        painting = true;
+
+        lastTrack["x"] = e.clientX;
+        lastTrack["y"] = e.offsetY;
+        leftclick = true;
+        drawCircle(e.clientX, e.offsetY, ctx.lineWidth / 2);
+      }
     } else if (e.button == 2) {
       // painting = true;
       // lastTrack = [e.clientX, e.clientY];
@@ -140,6 +231,9 @@ if (isTouchDevice) {
     painting = false;
     leftclick = false;
     rightclick = false;
+
+    let line = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    recordLines(line);
   };
 }
 

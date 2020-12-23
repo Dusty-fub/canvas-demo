@@ -20,7 +20,27 @@
       <button class="savePic">下载</button>
       <button class="eraser">橡皮擦</button>
       <button class="clear">清空画布</button>
-      <input type="range" min="1" max="50" class="range" />
+      <button class="undo">撤销</button>
+      <button class="textBtn">文本</button>
+      <div class="textPanel">
+        <input
+          type="range"
+          class="fontSizeBtn"
+          min="12"
+          max="72"
+          step="1"
+          value="18"
+        />
+      </div>
+      <div class="range-wrap">
+        <input
+          type="range"
+          min="1"
+          max="50"
+          class="range"
+          title="调整笔刷粗细"
+        />
+      </div>
       <div class="mouseColor">
         <button class="leftColor mouseColorActive">颜色1</button>
         <button class="rightColor">颜色2</button>
