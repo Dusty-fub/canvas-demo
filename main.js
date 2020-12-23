@@ -7,6 +7,8 @@ ctx.lineWidth = 15;
 
 ctx.lineCap = "round";
 
+let color = "black";
+
 let lastTrack = {};
 let leftclick;
 let rightclick;
@@ -16,23 +18,51 @@ let leftColorEl = document.getElementsByClassName("leftColor")[0];
 let rightColorEl = document.getElementsByClassName("rightColor")[0];
 
 let colorFirstRowEl = document.getElementsByClassName("colorFirstRow")[0];
+let colorSecondRowEl = document.getElementsByClassName("colorSecondRow")[0];
 
-colorFirstRowEl.addEventListener(
+let mouseColorEl = leftColorEl;
+
+let chooseMouseColor = (clickEl, anotherEl) => {
+  return () => {
+    if (clickEl.className.indexOf("mouseColorActive") === -1) {
+      anotherEl.className = anotherEl.className.replace(
+        " mouseColorActive",
+        ""
+      );
+      clickEl.className = clickEl.className.concat(" mouseColorActive");
+    }
+    mouseColorEl = clickEl;
+  };
+};
+
+leftColorEl.addEventListener(
   "click",
-  (e) => {
-    let btnColor = window.getComputedStyle(e.path[0]).backgroundColor;
-    color = btnColor;
-  },
+  chooseMouseColor(leftColorEl, rightColorEl),
   false
 );
+
+rightColorEl.addEventListener(
+  "click",
+  chooseMouseColor(rightColorEl, leftColorEl),
+  false
+);
+
+const updateColor = (event) => {
+  btnColor = window.getComputedStyle(event.path[0]).backgroundColor;
+  mouseColorEl.style.backgroundColor = btnColor;
+  if (mouseColorEl === leftColorEl) {
+    color = btnColor;
+  }
+};
+
+colorFirstRowEl.addEventListener("click", updateColor, false);
+colorSecondRowEl.addEventListener("click", updateColor, false);
 
 eraserEl.onclick = () => {
   color = "white";
 };
 
 var isTouchDevice = "ontouchstart" in document.documentElement;
-
-let color = "black";
 
 if (isTouchDevice) {
   canvas.ontouchstart = (e) => {

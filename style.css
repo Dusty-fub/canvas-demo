@@ -19,10 +19,25 @@ html, body {
 
 .tools {
   padding : 1em 2em;
+  display : flex;
+}
+
+.mouseColor {
+  margin : 0 1em;
+}
+.mouseColorActive {
+  background-color : #C9E0F7;
+}
+
+.leftColor, .rightColor {
+  height : 50px;
+  vertical-align : middle;
 }
 
 .colors {
-  display : inline-block;
+  display : inline-flex;
+  flex-direction : column;
+  justify-content : center;
 }
 
 .colorFirstRow button, .colorSecondRow button {
