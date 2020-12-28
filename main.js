@@ -139,6 +139,8 @@ eraserEl.onclick = () => {
 
 var isTouchDevice = "ontouchstart" in document.documentElement;
 
+let isInput = false;
+
 if (isTouchDevice) {
   canvas.ontouchstart = (e) => {
     let x = e.touches[0].clientX;
@@ -157,21 +159,22 @@ if (isTouchDevice) {
       //监听鼠标左键
 
       if (isText) {
-        let emptyEls = [...document.getElementsByClassName("insertInput")];
-        emptyEls.length !== 0 &&
-          emptyEls.forEach((item) => {
-            item.parentElement.removeChild(item);
-          });
+        if (isInput === false) {
+          let emptyEls = [...document.getElementsByClassName("insertInput")];
+          emptyEls.length !== 0 &&
+            emptyEls.forEach((item) => {
+              item.parentElement.removeChild(item);
+            });
+        }
+
         let x = e.pageX;
         let y = e.offsetY;
         let inputEl = document.createElement("textarea");
         inputEl.className = "insertInput";
         inputEl.style.position = "fixed";
-        console.dir(inputEl);
+
         inputEl.style.top = e.clientY - inputEl.offsetHeight + "px";
-        setTimeout(() => {
-          console.dir(inputEl);
-        }, 10000);
+
         inputEl.style.left = e.clientX + "px";
         inputEl.style.resize = "both";
         inputEl.style.fontSize = inputFontSize + "px";
@@ -184,7 +187,14 @@ if (isTouchDevice) {
           inputEl.focus();
         });
 
+        inputEl.oninput = (e) => {
+          if (e.target.value !== "") {
+            isInput = true;
+          }
+        };
+
         inputEl.onchange = (e) => {
+          isInput = false;
           let writeContent = e.target.value;
           ctx.fillStyle = color;
           ctx.lineWidth = 5;
