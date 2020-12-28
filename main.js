@@ -53,6 +53,7 @@ dragPicEl.onclick = () => {
 panBtnEl.onclick = () => {
   canvas.style.cursor = "";
   isText = false;
+  isDragPic = false;
 };
 
 let isMouseDown = false;
@@ -353,16 +354,10 @@ if (isTouchDevice) {
     if (isDragPicDown) {
       offsetX = e.pageX - dragPicX;
       offsetY = e.pageY - dragPicY;
-      console.log(offsetY);
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.putImageData(historyLines[0], offsetX, offsetY);
-
-      let line = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      recordLines(line);
-
-      dragPicX = e.pageX;
-      dragPicY = e.pageY;
     } else if (painting === true) {
-      console.log("exe");
       {
         drawLine(lastTrack["x"], lastTrack["y"], e.clientX, e.offsetY, color);
         lastTrack["x"] = e.clientX;
@@ -371,11 +366,14 @@ if (isTouchDevice) {
     }
   };
 
-  canvas.onmouseup = () => {
+  canvas.onmouseup = (e) => {
     painting = false;
     leftclick = false;
     rightclick = false;
-
+    if (isDragPic) {
+      dragPicX = e.pageX;
+      dragPicY = e.pageY;
+    }
     let line = ctx.getImageData(0, 0, canvas.width, canvas.height);
     recordLines(line);
     isDragPicDown = false;
