@@ -57,6 +57,8 @@ cutAreaEl.onclick = () => {
   canvas.setAttribute("height", height);
   ctx.putImageData(dataBeforeMove, 0, 0);
   selectRecEl.parentElement.removeChild(selectRecEl);
+  canvasWrapEl.style.width = "";
+  canvasWrapEl.style.height = "";
 };
 
 let selectRecX;
@@ -280,6 +282,8 @@ let isInput = false;
 let dragPicX;
 let dragPicY;
 let isDragPicDown = false;
+
+let isSelectPicDown = false;
 if (isTouchDevice) {
   canvas.ontouchstart = (e) => {
     let x = e.touches[0].clientX;
@@ -359,16 +363,24 @@ if (isTouchDevice) {
         dragPicY = e.pageY;
         isDragPicDown = true;
       } else if (isSelectPic) {
-        let selectRecEl = document.createElement("div");
-        selectRecEl.className = "selectRectangle";
-        selectRecEl.style.left = e.clientX + "px";
-        selectRecEl.style.top = e.clientY + "px";
+        let emptyEls = [...document.getElementsByClassName("selectRectangle")];
 
-        document.body.appendChild(selectRecEl);
+        if (emptyEls.length !== 0) {
+          emptyEls.forEach((item) => {
+            item.parentElement.removeChild(item);
+          });
+        } else {
+          let selectRecEl = document.createElement("div");
+          selectRecEl.className = "selectRectangle";
+          selectRecEl.style.left = e.clientX + "px";
+          selectRecEl.style.top = e.clientY + "px";
 
-        selectRecX = e.clientX;
-        selectRecY = e.clientY;
-        isSelectPicDown = true;
+          document.body.appendChild(selectRecEl);
+
+          selectRecX = e.clientX;
+          selectRecY = e.clientY;
+          isSelectPicDown = true;
+        }
       } else {
         painting = true;
 
@@ -383,7 +395,7 @@ if (isTouchDevice) {
       // rightclick = true;
     }
   };
-  let isSelectPicDown = false;
+
   canvas.onmousemove = (e) => {
     if (isDragPicDown) {
       offsetX = e.pageX - dragPicX;
