@@ -24,13 +24,13 @@
       <button class="textBtn">文本</button>
       <div class="textPanel">
         <input
-          type="range"
+          type="text"
+          list="fontSizeList"
           class="fontSizeBtn"
-          min="12"
-          max="72"
-          step="1"
+          autocomplete="off"
           value="18"
         />
+        <datalist id="fontSizeList"> </datalist>
       </div>
       <div class="range-wrap">
         <input

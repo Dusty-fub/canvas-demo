@@ -24,14 +24,31 @@ let clearEl = document.getElementsByClassName("clear")[0];
 let rangeEl = document.getElementsByClassName("range")[0];
 let leftColorEl = document.getElementsByClassName("leftColor")[0];
 let rightColorEl = document.getElementsByClassName("rightColor")[0];
+let fontSizeListEl = document.getElementById("fontSizeList");
 
 let colorFirstRowEl = document.getElementsByClassName("colorFirstRow")[0];
 let colorSecondRowEl = document.getElementsByClassName("colorSecondRow")[0];
+
+for (let i = 12; i < 73; i++) {
+  let optionEl = document.createElement("option");
+  optionEl.innerText = i;
+  fontSizeListEl.appendChild(optionEl);
+}
 
 let mouseColorEl = leftColorEl;
 
 let isText = false;
 let inputFontSize = 18;
+
+fontSizeBtnEl.onclick = function () {
+  fontSizeBtnEl.value = "";
+};
+
+fontSizeBtnEl.onblur = function () {
+  if (fontSizeBtnEl.value === "") {
+    fontSizeBtnEl.value = "18";
+  }
+};
 
 fontSizeBtnEl.onchange = function () {
   let currentInputEl = document.getElementsByClassName("insertInput")[0];
@@ -200,16 +217,17 @@ if (isTouchDevice) {
           ctx.lineWidth = 5;
           ctx.save();
           ctx.beginPath();
-          ctx.font = inputFontSize + "px orbitron";
-          ctx.fillText(writeContent, x + 1, y + 16); //inputFontSize
+          ctx.font = inputFontSize + "px monospace";
+          let yOffset;
+          if (inputFontSize === "31" || inputFontSize === "32") {
+            yOffset = 30;
+          } else {
+            yOffset =
+              0.942857142857142857 * inputFontSize +
+              8.2285714285714286 / inputFontSize;
+          }
+          ctx.fillText(writeContent, x + 1, y + yOffset);
 
-          /**
-           *  f       +x       +y
-           *  64      1       -12
-           *  53      1       -10
-           *  42      1       -4
-           *  12      1       -3
-           */
           ctx.restore();
           ctx.closePath();
           inputEl.parentElement.removeChild(inputEl);
