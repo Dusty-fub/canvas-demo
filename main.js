@@ -42,7 +42,30 @@ let panBtnEl = document.getElementsByClassName("pan")[0];
 let selectAreaEl = document.getElementsByClassName("selectArea")[0];
 let dragPicEl = document.getElementsByClassName("dragPic")[0];
 
-selectAreaEl.onclick = () => {};
+let cutAreaEl = document.getElementsByClassName("cutArea")[0];
+
+cutAreaEl.onclick = () => {
+  let selectRecEl = document.getElementsByClassName("selectRectangle")[0];
+  let x = Number(selectRecEl.style.left.split("px")[0]);
+  let y = Number(selectRecEl.style.top.split("px")[0]) - 132;
+  let width = Number(selectRecEl.style.width.split("px")[0]);
+  let height = Number(selectRecEl.style.height.split("px")[0]);
+
+  ctx.drawImage(canvas, x, y, width, height, 0, 0, width, height);
+  var dataBeforeMove = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  canvas.setAttribute("width", width);
+  canvas.setAttribute("height", height);
+  ctx.putImageData(dataBeforeMove, 0, 0);
+  selectRecEl.parentElement.removeChild(selectRecEl);
+};
+
+let selectRecX;
+let selectRecY;
+let isSelectPic = false;
+
+selectAreaEl.onmousedown = () => {
+  isSelectPic = true;
+};
 
 let isDragPic = false;
 
@@ -335,6 +358,17 @@ if (isTouchDevice) {
         dragPicX = e.pageX;
         dragPicY = e.pageY;
         isDragPicDown = true;
+      } else if (isSelectPic) {
+        let selectRecEl = document.createElement("div");
+        selectRecEl.className = "selectRectangle";
+        selectRecEl.style.left = e.clientX + "px";
+        selectRecEl.style.top = e.clientY + "px";
+
+        document.body.appendChild(selectRecEl);
+
+        selectRecX = e.clientX;
+        selectRecY = e.clientY;
+        isSelectPicDown = true;
       } else {
         painting = true;
 
@@ -349,7 +383,7 @@ if (isTouchDevice) {
       // rightclick = true;
     }
   };
-
+  let isSelectPicDown = false;
   canvas.onmousemove = (e) => {
     if (isDragPicDown) {
       offsetX = e.pageX - dragPicX;
@@ -357,6 +391,12 @@ if (isTouchDevice) {
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.putImageData(historyLines[0], offsetX, offsetY);
+    } else if (isSelectPicDown) {
+      let selectRecEl = document.getElementsByClassName("selectRectangle")[0];
+      let offsetX = e.clientX - selectRecX;
+      let offsetY = e.clientY - selectRecY;
+      selectRecEl.style.width = offsetX + "px";
+      selectRecEl.style.height = offsetY + "px";
     } else if (painting === true) {
       {
         drawLine(lastTrack["x"], lastTrack["y"], e.clientX, e.offsetY, color);
@@ -377,6 +417,7 @@ if (isTouchDevice) {
     let line = ctx.getImageData(0, 0, canvas.width, canvas.height);
     recordLines(line);
     isDragPicDown = false;
+    isSelectPicDown = false;
   };
 }
 
