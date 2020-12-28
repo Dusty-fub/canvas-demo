@@ -72,7 +72,13 @@
         </div>
       </div>
     </div>
-    <canvas id="canvas" width="800" height="600"></canvas>
+    <div class="canvasWrap">
+      <canvas id="canvas" width="800" height="600"></canvas>
+      <input type='range' class="canvasToRight"></input>
+      <input type='range' class="canvasToBottom"></input>
+      <input type='range' class="canvasToRightBottom"></input>
+    </div>
+    <footer></footer>
     <script>
       //屏蔽右键菜单
       function doNothing() {

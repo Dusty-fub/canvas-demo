@@ -3,11 +3,57 @@
   padding : 0;
   box-sizing : border-box;
 }
+.canvasWrap {
+  display : inline-block;
+  border : 1px dashed #AAAAAA;
+  position : relative;
+  padding-right : 4px;
+}
+footer {
+  width : 20px;
+  height : 200px;
+}
+.canvasWrap .canvasToRight {
+  position : absolute;
+  right : -5px;
+  top : 50%;
+  height : 5px;
+  width : 5px;
+  background-color : #CCCCCC;
+  border : 1px solid #111111;
+  cursor : w-resize;
+}
+.canvasWrap .canvasToBottom {
+  position : absolute;
+  right : 50%;
+  bottom : -5px;
+  height : 5px;
+  width : 5px;
+  background-color : #CCCCCC;
+  border : 1px solid #111111;
+  cursor : s-resize;
+}
+.canvasWrap .canvasToRightBottom {
+  position : absolute;
+  right : -5px;
+  bottom : -5px;
+  height : 5px;
+  width : 5px;
+  background-color : #CCCCCC;
+  border : 1px solid #111111;
+  cursor : se-resize;
+}
 
 #canvas {
-  display : block;
+  display : inline-block;
   background-color : #FFFFFF;
   cursor : crosshair;
+  position : relative;
+  z-index : 9;
+}
+
+.insertInput {
+  z-index : 10;
 }
 
 html, body {

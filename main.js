@@ -29,6 +29,79 @@ let fontSizeListEl = document.getElementById("fontSizeList");
 let colorFirstRowEl = document.getElementsByClassName("colorFirstRow")[0];
 let colorSecondRowEl = document.getElementsByClassName("colorSecondRow")[0];
 
+let canvasWrapEl = document.getElementsByClassName("canvasWrap")[0];
+
+let canvasToRightEl = document.getElementsByClassName("canvasToRight")[0];
+let canvasToBottomEl = document.getElementsByClassName("canvasToBottom")[0];
+let canvasToRightBottomEl = document.getElementsByClassName(
+  "canvasToRightBottom"
+)[0];
+let isMouseDown = false;
+
+canvasToBottomEl.onmousedown = () => {
+  isMouseDown = true;
+};
+canvasToRightBottomEl.onmousedown = () => {
+  isMouseDown = true;
+};
+
+canvasToBottomEl.onmousemove = (e) => {
+  isMouseDown && updateHeight(e.pageY);
+};
+canvasToBottomEl.onmouseup = (e) => {
+  isMouseDown = false;
+};
+
+canvasToRightBottomEl.onmousemove = (e) => {
+  if (isMouseDown) {
+    updateWidth(e.pageX);
+    updateHeight(e.pageY);
+  }
+};
+
+canvasToRightBottomEl.onmouseup = (e) => {
+  isMouseDown = false;
+};
+
+function updateWidth(newWidth) {
+  canvasWrapEl.style.width = newWidth + "px";
+
+  var width = canvas.getAttribute("width");
+  var height = canvas.getAttribute("height");
+  var dataBeforeMove = ctx.getImageData(0, 0, width, height);
+  width = newWidth - 6;
+  canvas.setAttribute("width", width);
+  canvas.setAttribute("height", height);
+  ctx.putImageData(dataBeforeMove, 0, 0);
+}
+
+function updateHeight(newHeight) {
+  newHeight = newHeight - 82;
+  canvasWrapEl.style.height = newHeight + "px";
+  var width = canvas.getAttribute("width");
+  var height = canvas.getAttribute("height");
+  var dataBeforeMove = ctx.getImageData(0, 0, width, height);
+  height = newHeight - 6;
+  canvas.setAttribute("width", width);
+  canvas.setAttribute("height", height);
+  ctx.putImageData(dataBeforeMove, 0, 0);
+}
+
+canvasToRightEl.onmousedown = () => {
+  isMouseDown = true;
+};
+
+canvasToRightEl.onmousemove = (e) => {
+  isMouseDown && updateWidth(e.pageX);
+};
+
+canvasWrapEl.onmouseup = (e) => {
+  if (e.target.className === "canvasToRight") {
+    updateWidth(e.pageX);
+  }
+  isMouseDown = false;
+};
+
 for (let i = 12; i < 73; i++) {
   let optionEl = document.createElement("option");
   optionEl.innerText = i;
@@ -49,7 +122,6 @@ fontSizeBtnEl.onblur = function () {
     fontSizeBtnEl.value = "18";
   }
 };
-
 fontSizeBtnEl.onchange = function () {
   let currentInputEl = document.getElementsByClassName("insertInput")[0];
   if (currentInputEl) {
@@ -144,6 +216,11 @@ const updateColor = (event) => {
   mouseColorEl.style.backgroundColor = btnColor;
   if (mouseColorEl === leftColorEl) {
     color = btnColor;
+  }
+  let currentInputEl = document.getElementsByClassName("insertInput")[0];
+  if (currentInputEl) {
+    currentInputEl.style.color = btnColor;
+    currentInputEl.focus();
   }
 };
 
