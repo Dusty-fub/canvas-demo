@@ -36,6 +36,25 @@ let canvasToBottomEl = document.getElementsByClassName("canvasToBottom")[0];
 let canvasToRightBottomEl = document.getElementsByClassName(
   "canvasToRightBottom"
 )[0];
+
+let panBtnEl = document.getElementsByClassName("pan")[0];
+
+let selectAreaEl = document.getElementsByClassName("selectArea")[0];
+let dragPicEl = document.getElementsByClassName("dragPic")[0];
+
+selectAreaEl.onclick = () => {};
+
+let isDragPic = false;
+
+dragPicEl.onclick = () => {
+  isDragPic = true;
+};
+
+panBtnEl.onclick = () => {
+  canvas.style.cursor = "";
+  isText = false;
+};
+
 let isMouseDown = false;
 
 canvasToBottomEl.onmousedown = () => {
@@ -135,7 +154,6 @@ textEl.addEventListener(
   "click",
   () => {
     canvas.style.cursor = "text";
-
     isText = true;
   },
   false
@@ -235,6 +253,9 @@ var isTouchDevice = "ontouchstart" in document.documentElement;
 
 let isInput = false;
 
+let dragPicX;
+let dragPicY;
+let isDragPicDown = false;
 if (isTouchDevice) {
   canvas.ontouchstart = (e) => {
     let x = e.touches[0].clientX;
@@ -309,6 +330,10 @@ if (isTouchDevice) {
           ctx.closePath();
           inputEl.parentElement.removeChild(inputEl);
         };
+      } else if (isDragPic) {
+        dragPicX = e.pageX;
+        dragPicY = e.pageY;
+        isDragPicDown = true;
       } else {
         painting = true;
 
@@ -325,10 +350,24 @@ if (isTouchDevice) {
   };
 
   canvas.onmousemove = (e) => {
-    if (painting === true) {
-      drawLine(lastTrack["x"], lastTrack["y"], e.clientX, e.offsetY, color);
-      lastTrack["x"] = e.clientX;
-      lastTrack["y"] = e.offsetY;
+    if (isDragPicDown) {
+      offsetX = e.pageX - dragPicX;
+      offsetY = e.pageY - dragPicY;
+      console.log(offsetY);
+      ctx.putImageData(historyLines[0], offsetX, offsetY);
+
+      let line = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      recordLines(line);
+
+      dragPicX = e.pageX;
+      dragPicY = e.pageY;
+    } else if (painting === true) {
+      console.log("exe");
+      {
+        drawLine(lastTrack["x"], lastTrack["y"], e.clientX, e.offsetY, color);
+        lastTrack["x"] = e.clientX;
+        lastTrack["y"] = e.offsetY;
+      }
     }
   };
 
@@ -339,6 +378,7 @@ if (isTouchDevice) {
 
     let line = ctx.getImageData(0, 0, canvas.width, canvas.height);
     recordLines(line);
+    isDragPicDown = false;
   };
 }
 

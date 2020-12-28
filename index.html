@@ -13,10 +13,32 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>画板</title>
     <link rel="stylesheet" href="style.css" />
+    <style type="text/css">
+.icon {
+  width : 1em;
+  height : 1em;
+  vertical-align : -.15em;
+  fill : currentColor;
+  overflow : hidden;
+}
+
+
+
+
+
+
+  </style>
   </head>
 
   <body oncontextmenu="doNothing()">
     <div class="tools">
+      <button class="pan">
+        <svg class="icon" aria-hidden="true"><use xlink:href="#icon-pan_icon"></use></svg>
+      </button>
+      <button class="dragPic">拖动</button>
+      <button class="selectArea">
+        选择
+      </button>
       <button class="savePic">下载</button>
       <button class="eraser">橡皮擦</button>
       <button class="clear">清空画布</button>
@@ -87,5 +109,6 @@
       }
     </script>
     <script src="main.js"></script>
+    <script src='//at.alicdn.com/t/font_2297010_xmzks0s48t.js'></script>
   </body>
 </html>
