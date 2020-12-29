@@ -75,6 +75,7 @@ html, body {
   background-color : #F5F6F7;
   margin-bottom : 5px;
   box-shadow : 0 1px 1.5px #393733;
+  min-width : 860px;
 }
 
 .tools > button {
@@ -102,6 +103,14 @@ html, body {
 .leftColor, .rightColor {
   height : 50px;
   vertical-align : middle;
+}
+
+.leftColor {
+  background-color : #000000;
+  color : white;
+}
+.rightColor {
+  background-color : #FFFFFF;
 }
 
 .colors {
@@ -178,11 +187,12 @@ html, body {
 
 .range-wrap {
   position : fixed;
-  top : 50%;
+  top : 60%;
   right : 30px;
   width : 30px;
   height : 150px;
   margin-top : -75px;
+  z-index : 11;
 }
 .range-wrap input {
   transform : rotate(-90deg);
@@ -194,7 +204,7 @@ html, body {
   -webkit-appearance : none;
   outline : none;
   position : relative;
-  background-color : #CDD1D3;
+  background-color : transparent;
 }
 .range-wrap input::after {
   display : block;
@@ -232,4 +242,10 @@ html, body {
 
 .tools button.cutArea {
   cursor : not-allowed;
+}
+
+@media (max-width: 1130px) {
+  .tools > button {
+    height : 50px;
+  }
 }

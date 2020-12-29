@@ -12,11 +12,7 @@ let fontSizeListEl = document.getElementById("fontSizeList");
 let colorFirstRowEl = document.getElementsByClassName("colorFirstRow")[0];
 let colorSecondRowEl = document.getElementsByClassName("colorSecondRow")[0];
 let canvasWrapEl = document.getElementsByClassName("canvasWrap")[0];
-let canvasToRightEl = document.getElementsByClassName("canvasToRight")[0];
-let canvasToBottomEl = document.getElementsByClassName("canvasToBottom")[0];
-let canvasToRightBottomEl = document.getElementsByClassName(
-  "canvasToRightBottom"
-)[0];
+
 let panBtnEl = document.getElementsByClassName("pan")[0];
 let selectAreaEl = document.getElementsByClassName("selectArea")[0];
 let dragPicEl = document.getElementsByClassName("dragPic")[0];
@@ -25,6 +21,8 @@ let cutAreaEl = document.getElementsByClassName("cutArea")[0];
 let ctx = canvas.getContext("2d");
 
 let color = "black";
+let leftColor = "black";
+let rightColor = "white";
 
 ctx.lineWidth = 15;
 ctx.lineCap = "round";
@@ -61,6 +59,13 @@ for (let i = 12; i < 73; i++) {
   fontSizeListEl.appendChild(optionEl);
 }
 
+//选择 & 剪裁
+selectAreaEl.onmousedown = () => {
+  isSelectPic = true;
+  isText = false;
+  removeSelectRec();
+  removeInputAreaEl();
+};
 cutAreaEl.onclick = () => {
   let selectRecEl = document.getElementsByClassName("selectRectangle")[0];
   let x = Number(selectRecEl.style.left.split("px")[0]);
@@ -76,31 +81,28 @@ cutAreaEl.onclick = () => {
   selectRecEl.parentElement.removeChild(selectRecEl);
   canvasWrapEl.style.width = "";
   canvasWrapEl.style.height = "";
+  ifHideCut(true);
 };
 
-selectAreaEl.onmousedown = () => {
-  isSelectPic = true;
-  removeSelectRec();
-};
-
+//拖动
 dragPicEl.onclick = () => {
   isDragPic = true;
   removeSelectRec();
 };
 
+//选择笔
 panBtnEl.onclick = () => {
-  canvas.style.cursor = "";
-  isText = false;
-  isDragPic = false;
-
-  removeSelectRec();
-
-  isSelectPic = false;
+  choosePan();
+  color = leftColor;
 };
 
 //调节画布大小
 canvasWrapEl.onmousedown = () => {
-  isMouseDown = true;
+  if (isText) {
+    ifHideCanvasRange(true);
+  } else {
+    isMouseDown = true;
+  }
 };
 canvasWrapEl.onmousemove = (e) => {
   if (isMouseDown) {
@@ -146,6 +148,8 @@ textEl.addEventListener(
   () => {
     canvas.style.cursor = "text";
     isText = true;
+    removeSelectRec();
+    removeInputAreaEl();
   },
   false
 );
@@ -154,6 +158,8 @@ textEl.addEventListener(
 savePicEl.addEventListener(
   "click",
   () => {
+    removeInputAreaEl();
+    removeSelectRec();
     let imgUrl = canvas.toDataURL("image/png");
     let saveA = document.createElement("a");
     document.body.append(saveA);
@@ -165,20 +171,26 @@ savePicEl.addEventListener(
   false
 );
 
+//撤销
 undoEl.onclick = () => {
-  historyLines.shift();
-  if (historyLines.length < 1) {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "#fff";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-  } else {
-    ctx.putImageData(historyLines[0], 0, 0);
+  if (!removeInputAreaEl()) {
+    historyLines.shift();
+    if (historyLines.length < 1) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#fff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    } else {
+      ctx.putImageData(historyLines[0], 0, 0);
+    }
   }
 };
 
+//清除画布
 clearEl.addEventListener(
   "click",
   () => {
+    removeInputAreaEl();
+    removeSelectRec();
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = "#fff";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -186,10 +198,12 @@ clearEl.addEventListener(
   false
 );
 
+//调整画笔粗细
 rangeEl.onchange = function () {
   ctx.lineWidth = this.value;
 };
 
+//更新颜色
 let chooseMouseColor = (clickEl, anotherEl) => {
   return () => {
     if (clickEl.className.indexOf("mouseColorActive") === -1) {
@@ -202,24 +216,36 @@ let chooseMouseColor = (clickEl, anotherEl) => {
     mouseColorEl = clickEl;
   };
 };
-
 leftColorEl.addEventListener(
   "click",
   chooseMouseColor(leftColorEl, rightColorEl),
   false
 );
-
 rightColorEl.addEventListener(
   "click",
   chooseMouseColor(rightColorEl, leftColorEl),
   false
 );
-
 const updateColor = (event) => {
   btnColor = window.getComputedStyle(event.path[0]).backgroundColor;
+
+  let r = Number(btnColor.substr(3).slice(1, -1).split(",")[0]);
+  let g = Number(btnColor.substr(3).slice(1, -1).split(",")[1]);
+  let b = Number(btnColor.substr(3).slice(1, -1).split(",")[2]);
+
   mouseColorEl.style.backgroundColor = btnColor;
+
+  if (r === g && g === b && g !== 0) {
+    mouseColorEl.style.color = "black";
+  } else {
+    mouseColorEl.style.color = `rgb(${255 - r},${255 - g},${255 - b})`;
+  }
+
   if (mouseColorEl === leftColorEl) {
     color = btnColor;
+    leftColor = btnColor;
+  } else if (mouseColorEl === rightColorEl) {
+    rightColor = btnColor;
   }
   let currentInputEl = document.getElementsByClassName("insertInput")[0];
   if (currentInputEl) {
@@ -227,12 +253,13 @@ const updateColor = (event) => {
     currentInputEl.focus();
   }
 };
-
 colorFirstRowEl.addEventListener("click", updateColor, false);
 colorSecondRowEl.addEventListener("click", updateColor, false);
 
+//橡皮擦
 eraserEl.onclick = () => {
   color = "white";
+  choosePan();
 };
 
 if (isTouchDevice) {
@@ -251,7 +278,6 @@ if (isTouchDevice) {
   canvas.onmousedown = (e) => {
     if (e.button === 0) {
       //监听鼠标左键
-
       if (isText) {
         inputTextMouseDown(e);
       } else if (isDragPic) {
@@ -261,6 +287,7 @@ if (isTouchDevice) {
       } else if (isSelectPic) {
         selectPicMouseDown(e);
       } else {
+        // color = leftColor;
         painting = true;
         lastTrack["x"] = e.clientX;
         lastTrack["y"] = e.offsetY;
@@ -268,6 +295,12 @@ if (isTouchDevice) {
         drawCircle(e.clientX, e.offsetY, ctx.lineWidth / 2);
       }
     } else if (e.button == 2) {
+      color = rightColor;
+      painting = true;
+      lastTrack["x"] = e.clientX;
+      lastTrack["y"] = e.offsetY;
+      // leftclick = true;
+      // drawCircle(e.clientX, e.offsetY, ctx.lineWidth / 2);
       // painting = true;
       // lastTrack = [e.clientX, e.clientY];
       // rightclick = true;
@@ -318,6 +351,7 @@ if (isTouchDevice) {
 }
 
 function drawCircle(x, y, radius) {
+  ctx.fillStyle = color;
   ctx.save();
   ctx.beginPath();
   ctx.arc(x, y, radius, 0, Math.PI * 2);
@@ -375,13 +409,22 @@ function ifHideCanvasRange(flag) {
   }
 }
 
+function removeInputAreaEl() {
+  let emptyEls = [...document.getElementsByClassName("insertInput")];
+  if (emptyEls.length !== 0) {
+    emptyEls.forEach((item) => {
+      item.parentElement.removeChild(item);
+    });
+    ifHideCanvasRange(false);
+    return true;
+  } else {
+    return false;
+  }
+}
+
 function inputTextMouseDown(e) {
   if (isInput === false) {
-    let emptyEls = [...document.getElementsByClassName("insertInput")];
-    emptyEls.length !== 0 &&
-      emptyEls.forEach((item) => {
-        item.parentElement.removeChild(item);
-      });
+    removeInputAreaEl();
   }
 
   let x = e.pageX;
@@ -460,4 +503,12 @@ function removeSelectRec() {
 
 function recordLines(line) {
   historyLines.unshift(line);
+}
+function choosePan() {
+  canvas.style.cursor = "";
+  isText = false;
+  isDragPic = false;
+  isSelectPic = false;
+  removeInputAreaEl();
+  removeSelectRec();
 }
